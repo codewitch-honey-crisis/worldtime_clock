@@ -10,11 +10,11 @@ using namespace arduino;
 using namespace gfx;
 
 // wifi
-constexpr static const char* ssid = "SSID";
-constexpr static const char* password = "PASSWORD";
+constexpr static const char* ssid = "Communism_Will_Win";
+constexpr static const char* password = "mypalkarl";
 
 // timezone
-constexpr static const int8_t utc_offset = 0; // UTC
+constexpr static const int8_t utc_offset = -8; // UTC
 
 // synchronize with worldtime every 60 seconds
 constexpr static const int sync_seconds = 60;
@@ -58,7 +58,7 @@ void draw_clock(Destination& dst, tm& time, const ssize16& size) {
     sr = srect16(0, 0, w / 16, w / 2);
     sr.center_horizontal_inplace(b);
     view.center(spoint16(w / 2, w / 2));
-    view.rotation((time.tm_sec / 60.0) * 360);
+    view.rotation((time.tm_sec / 60.0) * 360.0);
     spoint16 second_points[] = {
         view.translate(spoint16(sr.x1, sr.y1)),
         view.translate(spoint16(sr.x2, sr.y1)),
@@ -66,7 +66,7 @@ void draw_clock(Destination& dst, tm& time, const ssize16& size) {
         view.translate(spoint16(sr.x1, sr.y2))};
     spath16 second_path(4, second_points);
 
-    view.rotation((time.tm_min / 60.0) * 360);
+    view.rotation((time.tm_min / 60.0) * 360.0);
     spoint16 minute_points[] = {
         view.translate(spoint16(sr.x1, sr.y1)),
         view.translate(spoint16(sr.x2, sr.y1)),
@@ -75,7 +75,7 @@ void draw_clock(Destination& dst, tm& time, const ssize16& size) {
     spath16 minute_path(4, minute_points);
 
     sr.y1 += w / 8;
-    view.rotation((time.tm_hour / 24.0) * 360.0);
+    view.rotation(((time.tm_hour%12) / 12.0) * 360.0);
     spoint16 hour_points[] = {
         view.translate(spoint16(sr.x1, sr.y1)),
         view.translate(spoint16(sr.x2, sr.y1)),
