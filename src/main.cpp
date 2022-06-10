@@ -10,11 +10,11 @@ using namespace arduino;
 using namespace gfx;
 
 // wifi
-constexpr static const char* ssid = "Communism_Will_Win";
-constexpr static const char* password = "mypalkarl";
+constexpr static const char* ssid = "SSID";
+constexpr static const char* password = "PASSWORD";
 
 // timezone
-constexpr static const int8_t utc_offset = -8; // UTC
+constexpr static const int8_t utc_offset = 0; // UTC
 
 // synchronize with worldtime every 60 seconds
 constexpr static const int sync_seconds = 60;
