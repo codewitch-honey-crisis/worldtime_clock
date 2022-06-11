@@ -5,13 +5,17 @@
 #include <gfx_cpp14.hpp>
 #include <ili9341.hpp>
 #include <tft_io.hpp>
-#include <worldtime.hpp>
+#include <ntp_time.hpp>
 using namespace arduino;
 using namespace gfx;
 
 // wifi
 constexpr static const char* ssid = "SSID";
 constexpr static const char* password = "PASSWORD";
+
+// NTP server
+
+constexpr static const char* ntp_server = "time.nist.gov";
 
 // timezone
 constexpr static const int8_t utc_offset = 0; // UTC
@@ -115,6 +119,8 @@ uint32_t update_ts;
 uint32_t sync_count;
 time_t current_time;
 srect16 clock_rect;
+ntp_time ntp;
+IPAddress ntp_ip;
 using clock_bmp_t = bitmap<typename lcd_t::pixel_type>;
 uint8_t clock_bmp_buf[clock_bmp_t::sizeof_buffer(clock_size)];
 clock_bmp_t clock_bmp(clock_size, clock_bmp_buf);
@@ -132,11 +138,26 @@ void setup() {
     clock_rect = srect16(spoint16::zero(), (ssize16)clock_size);
     clock_rect.center_inplace((srect16)lcd.bounds());
     sync_count = sync_seconds;
-    current_time = worldtime::now(utc_offset);
+    WiFi.hostByName(ntp_server,ntp_ip);
+    ntp.begin_request(ntp_ip);
+    while(ntp.requesting()) {
+        ntp.update();
+    }
+    if(!ntp.request_received()) {
+        Serial.println("Unable to retrieve time");
+        while (true);
+    }
+
+    current_time = (utc_offset*3600)+ntp.request_result();
     update_ts = millis();
 }
 
 void loop() {
+    ntp.update();
+    if(ntp.request_received()) {
+        Serial.println("Request received");
+        current_time = (utc_offset*3600)+ntp.request_result();
+    }
     uint32_t ms = millis();
     if (ms - update_ts >= 1000) {
         update_ts = ms;
@@ -154,7 +175,7 @@ void loop() {
                           clock_bmp.bounds());
         if (0 == --sync_count) {
             sync_count = sync_seconds;
-            current_time = worldtime::now(utc_offset);
+            ntp.begin_request(ntp_ip);
         }
     }
 }
